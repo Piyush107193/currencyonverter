@@ -1,55 +1,67 @@
 import tkinter as tk
-from tkinter import ttk
-import requests
 
-# Function to convert currency
+# Manually defined exchange rates (as of a specific date, not up-to-date)
+exchange_rates = {
+    "USD": 1.0,
+    "EUR": 0.94,
+    "GBP": 0.77,
+    "JPY": 149.68,
+    "CAD": 1.28,
+    "AUD": 1.58,
+    "INR": 83.28,
+    "CNY": 6.38
+}
+
+# Function to perform currency conversion
 def convert_currency():
     amount = float(entry_amount.get())
     from_currency = combo_from_currency.get()
     to_currency = combo_to_currency.get()
-    
-    # Fetch real-time exchange rates from Open Exchange Rates API
-    api_key = 'YOUR_API_KEY'  # Replace with your actual API key
-    url = f'https://open.er-api.com/v6/latest/{from_currency}/{to_currency}'
-    response = requests.get(url)
-    data = response.json()
-    
-    # Calculate the converted amount
-    converted_amount = amount * data['rate']
-    
-    # Update the result label
-    result_label.config(text=f"{amount} {from_currency} = {converted_amount:.2f} {to_currency}")
 
-# Create the main window
-root = tk.Tk()
-root.title("Currency Converter")
+    if from_currency == to_currency:
+        converted_amount.set(amount)
+    else:
+        converted_amount.set(round(amount * exchange_rates[to_currency] / exchange_rates[from_currency], 2))
 
-# Create and configure widgets
-label_from_currency = tk.Label(root, text="From Currency:")
-label_to_currency = tk.Label(root, text="To Currency:")
-label_amount = tk.Label(root, text="Amount:")
-result_label = tk.Label(root, text="Result:")
+# Create a Tkinter window
+window = tk.Tk()
+window.title("Currency Converter")
 
-combo_from_currency = ttk.Combobox(root)
-combo_to_currency = ttk.Combobox(root)
-entry_amount = ttk.Entry(root)
+# Create labels, entry fields, and buttons
+label_from_currency = tk.Label(window, text="From Currency:")
+label_to_currency = tk.Label(window, text="To Currency:")
+label_amount = tk.Label(window, text="Amount:")
+label_result = tk.Label(window, text="Converted Amount:")
 
-convert_button = ttk.Button(root, text="Convert", command=convert_currency)
+combo_from_currency = tk.StringVar()
+combo_to_currency = tk.StringVar()
+entry_amount = tk.DoubleVar()
+converted_amount = tk.DoubleVar()
 
-# Place widgets on the grid
+combo_from_currency = tk.StringVar()
+combo_from_currency.set("USD")
+combo_to_currency = tk.StringVar()
+combo_to_currency.set("EUR")
+
+entry_from_currency = tk.OptionMenu(window, combo_from_currency, *exchange_rates.keys())
+entry_to_currency = tk.OptionMenu(window, combo_to_currency, *exchange_rates.keys())
+entry_amount = tk.Entry(window, textvariable=entry_amount)
+entry_result = tk.Label(window, textvariable=converted_amount)
+
+convert_button = tk.Button(window, text="Convert", command=convert_currency)
+
+# Arrange widgets in the window using the grid layout
 label_from_currency.grid(row=0, column=0)
 label_to_currency.grid(row=1, column=0)
 label_amount.grid(row=2, column=0)
-result_label.grid(row=4, column=0, columnspan=2)
+label_result.grid(row=3, column=0)
 
-combo_from_currency.grid(row=0, column=1)
-combo_to_currency.grid(row=1, column=1)
+entry_from_currency.grid(row=0, column=1)
+entry_to_currency.grid(row=1, column=1)
 entry_amount.grid(row=2, column=1)
-convert_button.grid(row=3, column=0, columnspan=2)
+entry_result.grid(row=3, column=1)
 
-# Set default values for currency combo boxes
-combo_from_currency.set("USD")
-combo_to_currency.set("EUR")
+convert_button.grid(row=4, columnspan=2)
 
-# Run the Tkinter main loop
-root.mainloop()
+# Start the main loop
+window.mainloop()
