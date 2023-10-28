@@ -63,5 +63,3 @@ entry_result.grid(row=3, column=1)
 
 convert_button.grid(row=4, columnspan=2)
 
-# Start the main loop
-window.mainloop()
